@@ -101,7 +101,7 @@ body {
 }
 
 .app-header h1 .ball-icon {
-  font-size: 1.2rem;
+  vertical-align: middle;
 }
 
 .app-header .subtitle {
@@ -199,14 +199,14 @@ body {
 .col-serve {
   width: 20px;
   min-width: 20px;
-  padding: 0 2px;
+  padding: 0 2px 0 6px;
 }
 
 .serve-icon {
-  font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto;
   animation: serve-bounce 0.4s ease;
 }
 
@@ -631,14 +631,6 @@ body {
 @media (max-width: 600px) {
   #app {
     padding: 1rem 0.5rem;
-  }
-
-  .player-inputs {
-    grid-template-columns: 1fr;
-  }
-
-  .score-buttons {
-    grid-template-columns: 1fr;
   }
 
   .settings-row {

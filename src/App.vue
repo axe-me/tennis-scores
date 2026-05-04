@@ -1,7 +1,7 @@
 <template>
   <header class="app-header">
     <h1>
-      <span class="ball-icon">🎾</span>
+      <svg class="ball-icon" viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="#c8e020"/><path d="M6 2.5C8.5 7 8.5 17 6 21.5M18 2.5C15.5 7 15.5 17 18 21.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
       Tennis Scoreboard
     </h1>
     <p class="subtitle">Match Umpire Console</p>
@@ -156,7 +156,7 @@
         <!-- Player 1 row -->
         <tr :class="{ 'is-serving': server === 0 }">
           <td class="col-serve" @click="toggleServer" style="cursor:pointer;" title="Click to switch server">
-            <span v-if="server === 0" class="serve-icon">🎾</span>
+            <svg v-if="server === 0" class="serve-icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#c8e020"/><path d="M6 2.5C8.5 7 8.5 17 6 21.5M18 2.5C15.5 7 15.5 17 18 21.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
           </td>
           <td class="col-player">
             <div class="player-name">
@@ -185,7 +185,7 @@
         <!-- Player 2 row -->
         <tr :class="{ 'is-serving': server === 1 }">
           <td class="col-serve" @click="toggleServer" style="cursor:pointer;" title="Click to switch server">
-            <span v-if="server === 1" class="serve-icon">🎾</span>
+            <svg v-if="server === 1" class="serve-icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#c8e020"/><path d="M6 2.5C8.5 7 8.5 17 6 21.5M18 2.5C15.5 7 15.5 17 18 21.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
           </td>
           <td class="col-player">
             <div class="player-name">
