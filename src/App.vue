@@ -193,7 +193,7 @@
           >
             {{ isProSet ? 'Games' : 'Set ' + (idx+1) }}
           </th>
-          <th class="col-points">Pts</th>
+          <th v-if="!matchOver" class="col-points">Pts</th>
         </tr>
       </thead>
       <tbody>
@@ -215,12 +215,12 @@
           >
             <div :class="setScoreClass(0, idx)">
               {{ sets[idx] ? sets[idx][0] : 0 }}
-              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && idx < currentSetIndex && sets[idx][0] < sets[idx][1]" class="tiebreak-indicator">
+              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && (idx < currentSetIndex || matchOver) && sets[idx][0] < sets[idx][1]" class="tiebreak-indicator">
                 {{ sets[idx].tiebreakLoserPoints }}
               </span>
             </div>
           </td>
-          <td class="col-points">
+          <td v-if="!matchOver" class="col-points">
             <div :class="['points-score', pointHighlight(0)]">
               {{ displayPoints(0) }}
             </div>
@@ -244,12 +244,12 @@
           >
             <div :class="setScoreClass(1, idx)">
               {{ sets[idx] ? sets[idx][1] : 0 }}
-              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && idx < currentSetIndex && sets[idx][1] < sets[idx][0]" class="tiebreak-indicator">
+              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && (idx < currentSetIndex || matchOver) && sets[idx][1] < sets[idx][0]" class="tiebreak-indicator">
                 {{ sets[idx].tiebreakLoserPoints }}
               </span>
             </div>
           </td>
-          <td class="col-points">
+          <td v-if="!matchOver" class="col-points">
             <div :class="['points-score', pointHighlight(1)]">
               {{ displayPoints(1) }}
             </div>
@@ -334,7 +334,7 @@ export default {
       gameFormat: 'regular', // 'regular' (6), 'fast4' (4), 'proSet8' (8 games, 1 set)
       setsToWin: 2, // Best of 3
       deuceMode: 'ad', // 'ad' or 'noAd'
-      finalSetRule: 'tiebreak', // 'tiebreak', 'superTiebreak', 'advantage'
+      finalSetRule: 'advantage', // 'tiebreak', 'superTiebreak', 'advantage'
 
       // Points in current game: [p1, p2]
       points: [0, 0],
@@ -683,12 +683,15 @@ export default {
       }
 
       if (p >= target && p - o >= 2) {
-        const set = this.sets[this.currentSetIndex]
-        set[playerIdx]++
-        set.tiebreakPlayed = true
-        set.tiebreakLoserPoints = o
+        const idx = this.currentSetIndex
+        const set = this.sets[idx]
+        const newSet = [set[0], set[1]]
+        newSet[playerIdx] = newSet[playerIdx] + 1
+        newSet.tiebreakPlayed = true
+        newSet.tiebreakLoserPoints = o
+        this.sets.splice(idx, 1, newSet)
 
-        this.history.push(`${this.displayName(playerIdx)} wins tiebreak ${p}-${o} → Set ${this.currentSetIndex + 1}`)
+        this.history.push(`${this.displayName(playerIdx)} wins tiebreak ${p}-${o} → Set ${idx + 1}`)
         this.isTiebreak = false
         this.tiebreakPoints = [0, 0]
         this.points = [0, 0]
