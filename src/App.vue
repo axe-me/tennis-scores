@@ -1,7 +1,7 @@
 <template>
   <header class="app-header">
     <h1>
-      <svg class="ball-icon" viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="10" fill="#c8e020"/><path d="M6 2.5C8.5 7 8.5 17 6 21.5M18 2.5C15.5 7 15.5 17 18 21.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg class="ball-icon" viewBox="0 0 24 24" width="20" height="20"><defs><clipPath id="bc"><circle cx="12" cy="12" r="10"/></clipPath></defs><circle cx="12" cy="12" r="10" fill="#c8e020"/><g clip-path="url(#bc)"><path d="M6 2C8.5 7 8.5 17 6 22M18 2C15.5 7 15.5 17 18 22" fill="none" stroke="#fff" stroke-width="1.5"/></g></svg>
       Tennis Scoreboard
     </h1>
     <p class="subtitle">Match Umpire Console</p>
@@ -33,6 +33,15 @@
         @focus="$event.target.select()"
       />
     </div>
+  </div>
+  <div class="match-title-input">
+    <input
+      id="match-title"
+      v-model="matchTitle"
+      type="text"
+      placeholder="Match title (e.g. Finals — Court 1)"
+      @focus="$event.target.select()"
+    />
   </div>
 
   <!-- Match Settings -->
@@ -176,7 +185,7 @@
       <thead>
         <tr>
           <th class="col-serve"></th>
-          <th class="col-player" style="text-align:left;">Player</th>
+          <th class="col-player col-match-title" style="text-align:left;">{{ matchTitle }}</th>
           <th
             v-for="(_, idx) in visibleSets"
             :key="'sh'+idx"
@@ -191,7 +200,7 @@
         <!-- Player 1 row -->
         <tr :class="{ 'is-serving': server === 0 }">
           <td class="col-serve" @click="toggleServer" style="cursor:pointer;" title="Click to switch server">
-            <svg v-if="server === 0" class="serve-icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#c8e020"/><path d="M6 2.5C8.5 7 8.5 17 6 21.5M18 2.5C15.5 7 15.5 17 18 21.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg v-if="server === 0" class="serve-icon" viewBox="0 0 24 24" width="16" height="16"><defs><clipPath id="sc0"><circle cx="12" cy="12" r="10"/></clipPath></defs><circle cx="12" cy="12" r="10" fill="#c8e020"/><g clip-path="url(#sc0)"><path d="M6 2C8.5 7 8.5 17 6 22M18 2C15.5 7 15.5 17 18 22" fill="none" stroke="#fff" stroke-width="1.5"/></g></svg>
           </td>
           <td class="col-player">
             <div class="player-name">
@@ -206,7 +215,7 @@
           >
             <div :class="setScoreClass(0, idx)">
               {{ sets[idx] ? sets[idx][0] : 0 }}
-              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && idx < currentSetIndex" class="tiebreak-indicator">
+              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && idx < currentSetIndex && sets[idx][0] < sets[idx][1]" class="tiebreak-indicator">
                 {{ sets[idx].tiebreakLoserPoints }}
               </span>
             </div>
@@ -220,7 +229,7 @@
         <!-- Player 2 row -->
         <tr :class="{ 'is-serving': server === 1 }">
           <td class="col-serve" @click="toggleServer" style="cursor:pointer;" title="Click to switch server">
-            <svg v-if="server === 1" class="serve-icon" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="10" fill="#c8e020"/><path d="M6 2.5C8.5 7 8.5 17 6 21.5M18 2.5C15.5 7 15.5 17 18 21.5" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg v-if="server === 1" class="serve-icon" viewBox="0 0 24 24" width="16" height="16"><defs><clipPath id="sc1"><circle cx="12" cy="12" r="10"/></clipPath></defs><circle cx="12" cy="12" r="10" fill="#c8e020"/><g clip-path="url(#sc1)"><path d="M6 2C8.5 7 8.5 17 6 22M18 2C15.5 7 15.5 17 18 22" fill="none" stroke="#fff" stroke-width="1.5"/></g></svg>
           </td>
           <td class="col-player">
             <div class="player-name">
@@ -235,8 +244,8 @@
           >
             <div :class="setScoreClass(1, idx)">
               {{ sets[idx] ? sets[idx][1] : 0 }}
-              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && idx < currentSetIndex" class="tiebreak-indicator">
-                {{ sets[idx][1] < sets[idx][0] ? sets[idx].tiebreakLoserPoints : '' }}
+              <span v-if="sets[idx] && sets[idx].tiebreakPlayed && idx < currentSetIndex && sets[idx][1] < sets[idx][0]" class="tiebreak-indicator">
+                {{ sets[idx].tiebreakLoserPoints }}
               </span>
             </div>
           </td>
@@ -320,6 +329,7 @@ export default {
     return {
       player1Name: 'Player 1',
       player2Name: 'Player 2',
+      matchTitle: '',
       server: 0, // 0 = player 1, 1 = player 2
       gameFormat: 'regular', // 'regular' (6), 'fast4' (4), 'proSet8' (8 games, 1 set)
       setsToWin: 2, // Best of 3
