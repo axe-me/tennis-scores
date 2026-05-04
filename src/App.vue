@@ -132,6 +132,41 @@
           </button>
         </div>
       </div>
+
+      <div class="setting-group">
+        <label>First Server:</label>
+        <div class="toggle-group">
+          <button
+            :class="['toggle-btn', server === 0 ? 'active' : '']"
+            @click="server = 0"
+            id="btn-serve-p1"
+          >
+            {{ player1Name }}
+          </button>
+          <button
+            :class="['toggle-btn', server === 1 ? 'active' : '']"
+            @click="server = 1"
+            id="btn-serve-p2"
+          >
+            {{ player2Name }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Court Info Bar -->
+  <div v-if="!matchOver" class="court-info-bar">
+    <div class="court-info-item">
+      <span class="court-info-label">Serve Side</span>
+      <div class="side-toggle">
+        <span :class="['side-box', serveSide === 'Deuce' ? 'active' : '']">Deuce</span>
+        <span :class="['side-box', serveSide === 'Ad' ? 'active' : '']">Ad</span>
+      </div>
+    </div>
+    <div v-if="shouldChangeSides" class="court-info-item changeover">
+      <span class="changeover-icon">⇄</span>
+      <span class="court-info-value">Change Ends</span>
     </div>
   </div>
 
@@ -385,6 +420,36 @@ export default {
 
     matchInProgress() {
       return this.currentSetIndex > 0 || this.points[0] > 0 || this.points[1] > 0 || this.currentGames[0] > 0 || this.currentGames[1] > 0
+    },
+
+    totalPointsInGame() {
+      if (this.isTiebreak) {
+        return this.tiebreakPoints[0] + this.tiebreakPoints[1]
+      }
+      return this.points[0] + this.points[1]
+    },
+
+    serveSide() {
+      // Even total points → Deuce (right), Odd → Ad (left)
+      return this.totalPointsInGame % 2 === 0 ? 'Deuce' : 'Ad'
+    },
+
+    shouldChangeSides() {
+      if (this.matchOver) return false
+      const totalGames = this.currentGames[0] + this.currentGames[1]
+
+      // In a tiebreak, change ends every 6 points
+      if (this.isTiebreak) {
+        const totalPts = this.tiebreakPoints[0] + this.tiebreakPoints[1]
+        return totalPts > 0 && totalPts % 6 === 0
+      }
+
+      // Change ends after odd total games, only at start of new game
+      if (totalGames > 0 && totalGames % 2 === 1 && this.points[0] === 0 && this.points[1] === 0) {
+        return true
+      }
+
+      return false
     },
   },
 
