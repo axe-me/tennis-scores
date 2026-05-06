@@ -161,6 +161,33 @@
           </button>
         </div>
       </div>
+
+      <div class="setting-group">
+        <label>Header:</label>
+        <div class="toggle-group">
+          <button
+            :class="['toggle-btn', showHeader ? 'active' : '']"
+            @click="showHeader = !showHeader"
+            id="btn-header"
+          >
+            {{ showHeader ? 'Shown' : 'Hidden' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label>Auto Save:</label>
+        <div class="toggle-group">
+          <button
+            :class="['toggle-btn', autoSave ? 'active' : '']"
+            @click="toggleAutoSave"
+            id="btn-autosave"
+          >
+            {{ autoSave ? 'On' : 'Off' }}
+          </button>
+        </div>
+        <span v-if="autoSave && autoSaveDirHandle" class="auto-save-status">✓ Saving to {{ autoSaveDirHandle.name }}</span>
+      </div>
     </div>
   </div>
 
@@ -182,7 +209,7 @@
   <!-- Scoreboard -->
   <div class="scoreboard-wrapper" ref="scoreboard">
     <table class="scoreboard">
-      <thead>
+      <thead v-if="showHeader">
         <tr>
           <th class="col-serve"></th>
           <th class="col-player col-match-title" style="text-align:left;">{{ matchTitle }}</th>
@@ -330,6 +357,9 @@ export default {
       player1Name: 'Player 1',
       player2Name: 'Player 2',
       matchTitle: '',
+      showHeader: false,
+      autoSave: false,
+      autoSaveDirHandle: null,
       server: 0, // 0 = player 1, 1 = player 2
       gameFormat: 'regular', // 'regular' (6), 'fast4' (4), 'proSet8' (8 games, 1 set)
       setsToWin: 2, // Best of 3
@@ -575,6 +605,10 @@ export default {
       } else {
         this.addGamePoint(playerIdx)
       }
+
+      if (this.autoSave) {
+        this.$nextTick(() => this.autoSaveScreenshot())
+      }
     },
 
     addGamePoint(playerIdx) {
@@ -740,6 +774,10 @@ export default {
       this.matchOver = prev.matchOver
       this.matchWinner = prev.matchWinner
       this.history.pop()
+
+      if (this.autoSave) {
+        this.$nextTick(() => this.autoSaveScreenshot())
+      }
     },
 
     resetMatch() {
@@ -786,6 +824,51 @@ export default {
         if (err.name !== 'AbortError') {
           console.error('Screenshot failed:', err)
         }
+      }
+    },
+
+    async toggleAutoSave() {
+      if (this.autoSave) {
+        // Turn off
+        this.autoSave = false
+        this.autoSaveDirHandle = null
+        return
+      }
+
+      // Turn on — pick a folder
+      if (!window.showDirectoryPicker) {
+        alert('Your browser does not support folder selection. Use Chrome or Edge.')
+        return
+      }
+
+      try {
+        this.autoSaveDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' })
+        this.autoSave = true
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Folder picker failed:', err)
+        }
+      }
+    },
+
+    async autoSaveScreenshot() {
+      if (!this.autoSaveDirHandle) return
+      try {
+        const el = this.$refs.scoreboard
+        const canvas = await html2canvas(el, {
+          backgroundColor: null,
+          scale: 2,
+        })
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+        const fileName = `scoreboard-${Date.now()}.png`
+        const fileHandle = await this.autoSaveDirHandle.getFileHandle(fileName, { create: true })
+        const writable = await fileHandle.createWritable()
+        await writable.write(blob)
+        await writable.close()
+      } catch (err) {
+        console.error('Auto-save failed:', err)
+        this.autoSave = false
+        this.autoSaveDirHandle = null
       }
     },
   },

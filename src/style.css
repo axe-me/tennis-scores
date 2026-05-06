@@ -675,6 +675,13 @@ body {
   color: var(--red-500);
 }
 
+.auto-save-status {
+  font-size: 0.65rem;
+  color: var(--green-400);
+  font-weight: 600;
+  margin-left: 0.25rem;
+}
+
 /* ── History / Log ───────────────────────────────────── */
 .history-panel {
   width: 100%;
